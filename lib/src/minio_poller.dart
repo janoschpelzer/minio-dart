@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:minio/src/minio_client.dart';
+import 'package:xml/xml.dart';
 
 class NotificationPoller {
   NotificationPoller(
@@ -19,6 +20,7 @@ class NotificationPoller {
   final List<String> events;
 
   final _eventStream = StreamController<Map<String, dynamic>>.broadcast();
+
   Stream<Map<String, dynamic>> get stream => _eventStream.stream;
 
   bool _stop = true;
@@ -58,9 +60,10 @@ class NotificationPoller {
       final chunk = utf8.decode(resp);
       if (chunk.trim().isEmpty) continue;
 
-      final data = json.decode(chunk);
-      final records = List<Map<String, dynamic>>.from(data['Records']);
-      await _eventStream.addStream(Stream.fromIterable(records));
+      final data = XmlDocument.parse(chunk);
+      data.toString();
+      // final records = List<Map<String, dynamic>>.from(data['Records']);
+      // await _eventStream.addStream(Stream.fromIterable(records));
     }
   }
 }
